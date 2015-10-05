@@ -134,6 +134,7 @@ openerp.testing.section('web_widget_boolean_switch',
                           '<input type="checkbox" checked readonly/>',
                           {}, true, true, true,
                           numTest++ + " - By default widget is disabled test with checked and readonly");
+        ok(false, "failed test");
     });
 
 });
