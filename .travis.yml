@@ -10,7 +10,7 @@ services:
   - docker
 
 addons:
-  firefox: "lastest"
+  firefox: "latest"
 #  apt:
 #    packages:
 #      - expect-dev  # provides unbuffer utility
