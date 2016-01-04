@@ -3,32 +3,47 @@ language: python
 python:
   - "2.7"
   
-sudo: false
+sudo: required
 cache: pip
 
+services:
+  - docker
+
 addons:
-  apt:
-    packages:
-      - expect-dev  # provides unbuffer utility
-      - python-lxml  # because pip installation is slow
+  firefox: "lastest"
+#  apt:
+#    packages:
+#      - expect-dev  # provides unbuffer utility
+#      - python-lxml  # because pip installation is slow
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - DISPLAY=:99.0
+  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0" QUNIT_TESTS="0"
   - TRANSIFEX_USER='transbot@odoo-community.org'
   - secure: GzvUeJ2NRqb1+zQFgBcWmKqa9i3GtwD0XJP05UTGVYIBQ1oCuieB20LF8YhbXE/yI5fbbsc6AEfp3BJ579eD1vkcPFT2jyKawbVEi9NIaoKt/0KBhJJMjcLWqdCookEjdZvzRjOPbQav2o45guVZQNuxVuyIuR2gBJb8kIQ24VM=
 
   matrix:
-  - LINT_CHECK="1"
-  - TRANSIFEX="1"
-  - TESTS="1" ODOO_REPO="odoo/odoo"
-  - TESTS="1" ODOO_REPO="OCA/OCB"
+#  - LINT_CHECK="1"
+#  - TRANSIFEX="1"
+  - TESTS="1" ODOO_REPO="odoo/odoo" QUNIT_TESTS="1"
+  - TESTS="1" ODOO_REPO="OCA/OCB" QUNIT_TESTS="1"
 
 virtualenv:
   system_site_packages: true
 
 install:
+  - sh -e /etc/init.d/xvfb start
+  - apt-get install expect-dev
+  - apt-get install python-lxml
+  - docker run -d -p 4444:4444 --name selenium-hub -e GRID_TIMEOUT=10000 selenium/hub
+  - docker run -d --dns 8.8.8.8 --link selenium-hub:hub selenium/node-firefox
+  - docker run -d --dns 8.8.8.8 --link selenium-hub:hub selenium/node-chrome
   - pip install anybox.testing.openerp
+  - pip install selenium
+  - pip install git+https://github.com/petrus-v/selenium-extra-api.git@master#egg=selenium-extra-api
+  - pip install git+https://github.com/petrus-v/anybox-nose-selenium.git@master#egg=anybox-nose-selenium
+  - pip install git+https://github.com/petrus-v/selenium-odoo-qunit.git@master#egg=selenium-odoo-qunit
   - git clone --branch selenium-qunit-test --depth=1 https://github.com/petrus-v/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
