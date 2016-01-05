@@ -34,8 +34,9 @@ virtualenv:
 
 install:
   - sh -e /etc/init.d/xvfb start
-  - apt-get install expect-dev
-  - apt-get install python-lxml
+  - sudo apt-get update -qq
+  - sudo apt-get install -y expect-dev
+  - sudo apt-get install -y python-lxml
   - docker run -d -p 4444:4444 --name selenium-hub -e GRID_TIMEOUT=10000 selenium/hub
   - docker run -d --dns 8.8.8.8 --link selenium-hub:hub selenium/node-firefox
   - docker run -d --dns 8.8.8.8 --link selenium-hub:hub selenium/node-chrome
